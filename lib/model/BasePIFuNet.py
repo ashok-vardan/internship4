@@ -55,3 +55,15 @@ class BasePIFuNet(nn.Module):
         self.filter(images)
         self.query(points, calibs, transforms)
 
+        # The GAN loss terms can be added here based on the scores obtained from the discriminator.
+
+        return self.get_preds()
+
+# Initialize the generator and discriminator
+latent_dim = 100  # You can adjust the size of the generator's input noise vector
+output_dim = 3  # Adjust this based on the dimension of the generated 3D shapes
+generator = Generator(latent_dim, output_dim)
+discriminator = Discriminator(output_dim)
+
+# Initialize the BasePIFuNet with the generator and discriminator
+pifu_net_gan = BasePIFuNet(generator, discriminator)
