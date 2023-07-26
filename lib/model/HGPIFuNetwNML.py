@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-#from .MLP import MLP
+# from .MLP import MLP
 
 class Generator(nn.Module):
     def __init__(self, opt):
