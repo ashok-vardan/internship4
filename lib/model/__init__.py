@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 #from .MLP import MLP
-from .HGPIFuNetwNML import HGPIFuNetwNML
+#from .HGPIFuNetwNML import HGPIFuNetwNML
 
 # Define the Generator
 class Generator(nn.Module):
