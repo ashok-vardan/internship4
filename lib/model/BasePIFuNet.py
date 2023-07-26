@@ -1,34 +1,37 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All rights reserved.
-
 import torch
 import torch.nn as nn
-import torch.nn.functional as F 
+import torch.nn.functional as F
 
-from ..geometry import index, orthogonal, perspective
+# Define the generator and discriminator classes
+class Generator(nn.Module):
+    def __init__(self, latent_dim, output_dim):
+        super(Generator, self).__init__()
+        # Define the layers of the generator here
 
+    def forward(self, noise):
+        # Implement the forward pass of the generator
+        # Return the generated 3D shapes
+
+class Discriminator(nn.Module):
+    def __init__(self, input_dim):
+        super(Discriminator, self).__init__()
+        # Define the layers of the discriminator here
+
+    def forward(self, shapes):
+        # Implement the forward pass of the discriminator
+        # Return the probability of the shapes being real or fake
+
+# Now, let's modify the BasePIFuNet class to use the GAN architecture
 class BasePIFuNet(nn.Module):
-    def __init__(self,
-                 projection_mode='orthogonal',
-                 criteria={'occ': nn.MSELoss()},
-                 ):
-        '''
-        args:
-            projection_mode: orthonal / perspective
-            error_term: point-wise error term 
-        '''
+    def __init__(self, generator, discriminator, projection_mode='orthogonal'):
         super(BasePIFuNet, self).__init__()
         self.name = 'base'
 
-        self.criteria = criteria
+        self.generator = generator
+        self.discriminator = discriminator
 
         self.index = index
         self.projection = orthogonal if projection_mode == 'orthogonal' else perspective
-
-        self.preds = None
-        self.labels = None
-        self.nmls = None
-        self.labels_nml = None
-        self.preds_surface = None # with normal loss only
 
     def forward(self, points, images, calibs, transforms=None):
         '''
@@ -40,59 +43,15 @@ class BasePIFuNet(nn.Module):
         return:
             [B, C, N] prediction corresponding to the given points
         '''
+        # Assuming we have the generator generate 3D shapes from random noise
+        noise = torch.randn(points.size(0), latent_dim, device=points.device)
+        generated_shapes = self.generator(noise)
+
+        # Assuming we have the discriminator to classify real and generated shapes
+        real_shape_scores = self.discriminator(points)
+        generated_shape_scores = self.discriminator(generated_shapes)
+
+        # Apply the original filter and query functions (from the original code)
         self.filter(images)
         self.query(points, calibs, transforms)
-        return self.get_preds()
 
-    def filter(self, images):
-        '''
-        apply a fully convolutional network to images.
-        the resulting feature will be stored.
-        args:
-            images: [B, C, H, W]
-        '''
-        None
-    
-    def query(self, points, calibs, trasnforms=None, labels=None):
-        '''
-        given 3d points, we obtain 2d projection of these given the camera matrices.
-        filter needs to be called beforehand.
-        the prediction is stored to self.preds
-        args:
-            points: [B, 3, N] 3d points in world space
-            calibs: [B, 3, 4] calibration matrices for each image
-            transforms: [B, 2, 3] image space coordinate transforms
-            labels: [B, C, N] ground truth labels (for supervision only)
-        return:
-            [B, C, N] prediction
-        '''
-        None
-
-    def calc_normal(self, points, calibs, transforms=None, delta=0.1):
-        '''
-        return surface normal in 'model' space.
-        it computes normal only in the last stack.
-        note that the current implementation use forward difference.
-        args:
-            points: [B, 3, N] 3d points in world space
-            calibs: [B, 3, 4] calibration matrices for each image
-            transforms: [B, 2, 3] image space coordinate transforms
-            delta: perturbation for finite difference
-        '''
-        None
-
-    def get_preds(self):
-        '''
-        return the current prediction.
-        return:
-            [B, C, N] prediction
-        '''
-        return self.preds
-
-    def get_error(self, gamma=None):
-        '''
-        return the loss given the ground truth labels and prediction
-        '''
-        return self.error_term(self.preds, self.labels, gamma)
-
-    
