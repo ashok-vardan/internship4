@@ -23,7 +23,7 @@ from numpy.linalg import inv
 from lib.options import BaseOptions
 from lib.mesh_util import save_obj_mesh_with_color, reconstruction
 from lib.data import EvalWPoseDataset, EvalDataset
-# from lib.model import HGPIFuNetwNML, HGPIFuMRNet
+from lib.model import HGPIFuNetwNML, HGPIFuMRNet
 from lib.geometry import index
 
 from PIL import Image
